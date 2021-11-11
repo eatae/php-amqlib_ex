@@ -55,3 +55,6 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash \
 ADD ./php.ini /usr/local/etc/php/php.ini
 
 WORKDIR /var/www/php_rabbit
+
+# php-amqlib
+ENTRYPOINT composer require php-amqplib/php-amqplib

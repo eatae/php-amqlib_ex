@@ -5,11 +5,17 @@ logs
 # Ignore the build directory
 /dist
 
+# Ignore vendor
+/vendor
+
 # The file containing environment variables
 .env
 
 # The file containing Docker database data-volumes
 db_data
+
+# RabbitMQ files
+rabbit_data
 
 # Ignore IDE specific files
 .DS_Store
