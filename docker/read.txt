@@ -1,0 +1,26 @@
+db_data
+    - хранение базы данных из контейнера
+
+nginx
+    - конф. для nginx
+    - Dockerfile
+
+php-cli
+    - Dockerfile
+
+
+----------------------
+
+
+Show:
+    sycrud:8080
+    (if change hosts file)
+
+Enter php-cli:
+    docker exec -it sycrud-php-cli bash
+
+Docker-Compose up:
+    docker-compose up --build -d
+    docker-compose up -d
+
+

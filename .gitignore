@@ -1,0 +1,16 @@
+# Ignore Logs
+logs
+*.log
+
+# Ignore the build directory
+/dist
+
+# The file containing environment variables
+.env
+
+# The file containing Docker database data-volumes
+db_data
+
+# Ignore IDE specific files
+.DS_Store
+.idea/

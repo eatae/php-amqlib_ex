@@ -1,0 +1,50 @@
+version: '3.6'
+
+services:
+
+  nginx:
+    build:
+      context: ./nginx
+    volumes:
+      - ../:/var/www/php_rabbit
+    container_name: ${COMPOSE_PROJECT_NAME}-nginx
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+
+
+  php-fpm:
+    build:
+      context: ./php-fpm
+    volumes:
+      - ../:/var/www/php_rabbit
+    container_name: ${COMPOSE_PROJECT_NAME}-fpm
+    environment:
+          XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1"
+          PHP_IDE_CONFIG: "serverName=Docker"
+
+  php-cli:
+    build:
+      context: ./php-cli
+    volumes:
+      - ../:/var/www/php_rabbit
+    command: sleep 25000
+    container_name: ${COMPOSE_PROJECT_NAME}-cli
+    environment:
+      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1"
+      PHP_IDE_CONFIG: "serverName=Docker"
+
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    volumes:
+      - ./rabbitmq/etc/:/etc/rabbitmq/
+      - ./rabbitmq/data/:/var/lib/rabbitmq/
+      - ./rabbitmq/logs/:/var/log/rabbitmq/
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - 5672:5672
+      - 15672:15672
