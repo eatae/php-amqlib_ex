@@ -39,12 +39,9 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: ${COMPOSE_PROJECT_NAME}-rabbit
     volumes:
-      - ./rabbit_data/etc/:/etc/rabbitmq/
-      - ./rabbit_data/data/:/var/lib/rabbitmq/
-      - ./rabbit_data/logs/:/var/log/rabbitmq/
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      - ./rabbitmq/etc/:/etc/rabbitmq/
+      - ./rabbitmq/data/:/var/lib/rabbitmq/
+      - ./rabbitmq/logs/:/var/log/rabbitmq/
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"

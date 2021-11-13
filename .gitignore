@@ -15,7 +15,8 @@ logs
 db_data
 
 # RabbitMQ files
-rabbit_data
+rabbitmq/data
+rabbitmq/logs
 
 # Ignore IDE specific files
 .DS_Store
