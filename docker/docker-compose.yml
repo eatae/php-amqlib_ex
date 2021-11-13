@@ -38,6 +38,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: ${COMPOSE_PROJECT_NAME}-rabbit
+    hostname: my-rabbit
     volumes:
       - ./rabbitmq/etc/:/etc/rabbitmq/
       - ./rabbitmq/data/:/var/lib/rabbitmq/

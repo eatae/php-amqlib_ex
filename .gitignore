@@ -15,8 +15,8 @@ logs
 db_data
 
 # RabbitMQ files
-rabbitmq/data
-rabbitmq/logs
+/docker/rabbitmq/data
+/docker/rabbitmq/logs
 
 # Ignore IDE specific files
 .DS_Store
