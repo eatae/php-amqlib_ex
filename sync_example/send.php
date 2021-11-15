@@ -19,8 +19,11 @@ $channel = $connection->channel();
 
 $channel->queue_declare('test', false, false, false, false);
 
-$msg = new AMQPMessage('Hello World!');
-$channel->basic_publish($msg, '', 'test');
+for ($i=0; $i <= 100; $i++) {
+    $msg = new AMQPMessage('Hello World! ' . $i);
+    $channel->basic_publish($msg, '', 'test');
+}
+
 
 echo " [x] Sent 'Hello World!'\n";
 
