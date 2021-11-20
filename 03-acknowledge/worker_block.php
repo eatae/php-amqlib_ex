@@ -14,15 +14,12 @@ echo " [*] Waiting for messages. To exit press CTRL+C\n";
 /**
  * Callback for receive message
  * - sleep by dot .
- *
  */
 $callback = function (AMQPMessage $msg) {
     echo ' [x] Received ', $msg->body, "\n";
     sleep(substr_count($msg->body, '.'));
-    //echo " [x] Done\n";
-    echo " [x] Ack\n";
-    // acknowledge consume
-    $msg->ack();
+    echo " [x] Block message\n";
+    // block !
 };
 
 // no_ack = false

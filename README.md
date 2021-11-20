@@ -7,7 +7,7 @@ cd ./docker
 
 docker-compose up --build -d
 
-docker exec -it php_rabbit-cli composer require php-amqplib/php-amqplib
+docker exec -it php_rabbit-cli composer require php-amqplib/php-amqplib "^3.0"
 docker exec -it php_rabbit-cli composer require vlucas/phpdotenv
 ```
 
@@ -54,26 +54,52 @@ docker exec -it php_rabbit-cli php 02-routing-key/new_task.php "A very hard task
 ```
 
 
-### Acknowledge
+### Ack / nack / reject / block
 - подтверждаем получение и валидную обработку сообщения
   <br>
 
 run:
 ```bash
-# здесь ничего не происходит, сообщение отправлено, но worker его не выводит
-docker exec -it php_rabbit-cli php 03-acknowledge/worker_noack.php
 
-docker exec -it php_rabbit-cli php 03-acknowledge/worker_nack.php
+# сообщения удаляются из очереди
 docker exec -it php_rabbit-cli php 03-acknowledge/worker_ack.php
+
+# сообщения так же удаляются из очереди либо переводится в очередь недоставленных сообщений (если очередь определена)
+docker exec -it php_rabbit-cli php 03-acknowledge/worker_nack.php
+
+# отвергается обработка, сообщения остаются в очереди и циклически обрабатываются
+docker exec -it php_rabbit-cli php 03-acknowledge/worker_reject.php
+
+# все сообщения которые этот воркер обрабатывает блокируются и имеют состояние no ack,
+# другие воркеры не могут работать с заблокированными сообщениями пока работает этот воркер
+docker exec -it php_rabbit-cli php 03-acknowledge/worker_block.php
 
 # эту команду запускаем несколько раз
 docker exec -it php_rabbit-cli php 03-acknowledge/new_task.php "A very hard task which takes two seconds...."
 
-# смотрим noack сообщения
+# смотрим noack сообщения (not work)
 docker exec -it php_rabbit-cli rabbitmqctl list_queues name messages_ready messages_unacknowledged
 ```
 
 
+### Nack requeue
+- не подтвержденные сообщения переводим в очередь "неподтвержденных сообщений"
+  <br>
+
+run:
+```bash
+# воркер валидной очереди (ack)
+docker exec -it php_rabbit-cli php 04-nack-requeue/consumer.php
+
+# воркер очереди nack сообщений (nack)
+docker exec -it php_rabbit-cli php 04-nack-requeue/consumer_nack.php
+
+# это сообщение нормально обработается в своей очереди (ack)
+docker exec -it php_rabbit-cli php 04-nack-requeue/publisher.php "good"
+
+# это сообщение переведётся в очередь не валидных сообщений (nack)
+docker exec -it php_rabbit-cli php 04-nack-requeue/publisher.php "bad"
+```
 
 
 

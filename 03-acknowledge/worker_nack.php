@@ -2,6 +2,7 @@
 require_once realpath(__DIR__ .'/../bootstrap.php');
 
 use Src\RabbitConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 $connection = RabbitConnection::getConnection();
 $channel = $connection->channel();
@@ -14,7 +15,7 @@ echo " [*] Waiting for messages. To exit press CTRL+C\n";
  * Callback for receive message
  * - sleep by dot .
  */
-$callback = function ($msg) {
+$callback = function (AMQPMessage $msg) {
     echo ' [x] Received ', $msg->body, "\n";
     sleep(substr_count($msg->body, '.'));
     //echo " [x] Done\n";

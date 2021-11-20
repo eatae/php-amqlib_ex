@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
         # mbstring
         libonig-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql bcmath
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql bcmath sockets
 
 #intl
 RUN apt-get install -y libicu-dev \
