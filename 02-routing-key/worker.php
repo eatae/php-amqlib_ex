@@ -20,7 +20,7 @@ $callback = function ($msg) {
     echo " [x] Done\n";
 };
 
-$channel->basic_consume('02-queue-test', '', false, true, false, false, $callback);
+$channel->basic_consume('02-queue', '', false, true, false, false, $callback);
 
 while (count($channel->callbacks)) {
     $channel->wait();
