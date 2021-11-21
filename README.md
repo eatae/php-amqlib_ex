@@ -61,13 +61,13 @@ docker exec -it php_rabbit-cli php 02-routing-key/new_task.php "A very hard task
 run:
 ```bash
 
-# сообщения удаляются из очереди
+# ack - сообщения удаляются из очереди
 docker exec -it php_rabbit-cli php 03-acknowledge/worker_ack.php
 
-# сообщения так же удаляются из очереди либо переводится в очередь недоставленных сообщений (если очередь определена)
+# nack - сообщения так же удаляются из очереди либо переводится в очередь недоставленных сообщений (если очередь определена)
 docker exec -it php_rabbit-cli php 03-acknowledge/worker_nack.php
 
-# отвергается обработка, сообщения остаются в очереди и циклически обрабатываются
+# reject - отвергается обработка, сообщения остаются в очереди и циклически обрабатываются
 docker exec -it php_rabbit-cli php 03-acknowledge/worker_reject.php
 
 # все сообщения которые этот воркер обрабатывает блокируются и имеют состояние no ack,
@@ -77,28 +77,33 @@ docker exec -it php_rabbit-cli php 03-acknowledge/worker_block.php
 # эту команду запускаем несколько раз
 docker exec -it php_rabbit-cli php 03-acknowledge/new_task.php "A very hard task which takes two seconds...."
 
-# смотрим noack сообщения (not work)
-docker exec -it php_rabbit-cli rabbitmqctl list_queues name messages_ready messages_unacknowledged
+# смотрим nack сообщения (rabbit container)
+docker exec -it php_rabbit-rabbit rabbitmqctl list_queues name messages_ready messages_unacknowledged
 ```
 
 
-### Nack requeue
+### Nack (dead-letter-exchange)
 - не подтвержденные сообщения переводим в очередь "неподтвержденных сообщений"
+- параметр requeue должен быть false
+- и должен быть обменник "dead-letter-exchange"
   <br>
 
 run:
 ```bash
-# воркер валидной очереди (ack)
-docker exec -it php_rabbit-cli php 04-nack-requeue/consumer.php
+# включаем DLX для nack сообщений (политика) 
+docker exec -it php_rabbit-rabbit rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"my-dlx"}' --apply-to queues
 
-# воркер очереди nack сообщений (nack)
-docker exec -it php_rabbit-cli php 04-nack-requeue/consumer_nack.php
+# ack-worker
+docker exec -it php_rabbit-cli php 04-nack-dead-letter/ack-worker.php
+
+# nack-worker
+docker exec -it php_rabbit-cli php 04-nack-dead-letter/worker.php
 
 # это сообщение нормально обработается в своей очереди (ack)
-docker exec -it php_rabbit-cli php 04-nack-requeue/publisher.php "good"
+docker exec -it php_rabbit-cli php 04-nack-dead-letter/publisher.php "good"
 
 # это сообщение переведётся в очередь не валидных сообщений (nack)
-docker exec -it php_rabbit-cli php 04-nack-requeue/publisher.php "bad"
+docker exec -it php_rabbit-cli php 04-nack-dead-letter/publisher.php "bad"
 ```
 
 
