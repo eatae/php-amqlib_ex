@@ -1,6 +1,8 @@
-### php_rabbit
+## php-amqplib examples
+<br>
 
-#### Install
+
+### Install
 
 ```bash
 cd ./docker
