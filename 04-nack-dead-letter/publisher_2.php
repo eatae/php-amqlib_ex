@@ -19,7 +19,7 @@ if (empty($data)) {
 }
 $msg = new AMQPMessage($data);
 
-$channel->basic_publish($msg, 'r-exchange', 'r-queue');
+$channel->basic_publish($msg, '', 'task');
 
 echo ' [x] Sent ', $data, "\n";
 

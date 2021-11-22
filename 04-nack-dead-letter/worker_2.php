@@ -8,40 +8,28 @@ use PhpAmqpLib\Wire\AMQPTable;
 $connection = RabbitConnection::getConnection();
 $channel = $connection->channel();
 
-$deadLetterExchange = 'dl_exchange';
-$retryQueue         = 'retry_task';
-
 $exchange           = 'task';
 $queue              = 'task';
+$deadLetterExchange = 'retry';
+$retryQueue         = 'retry_task';
+$channel->exchange_declare($exchange, 'direct', false, true);
+$channel->exchange_declare($deadLetterExchange, 'direct', false, true);
+// Normal queue
+$channel->queue_declare($queue, false, true, false, false, false, new AMQPTable([
+    'x-dead-letter-exchange' => '',
+    'x-dead-letter-routing-key' => $retryQueue
+]));
+$channel->queue_bind($queue, $exchange);
+// Retry queue with TTL
+$channel->queue_declare($retryQueue, false, true, false, false, false, new AMQPTable([
+    'x-dead-letter-exchange' => '',
+    'x-dead-letter-routing-key' => $queue,
+    'x-message-ttl' => 5000
+]));
+$channel->queue_bind($retryQueue, $deadLetterExchange);
 
-// Dead Letter eXchange and Queue
-$channel->exchange_declare('dlx-exchange', 'direct', 'false', 'false', 'false');
-$channel->queue_declare('dlx-queue', false, false, false, false);
-$channel->queue_bind('dlx-queue', 'dlx-exchange');
+echo ' [*] Waiting for messages. To exit press CTRL+C', "\n";
 
-# Regular eXchange and Queue
-$channel->exchange_declare('r-exchange', 'direct', 'false', 'false', 'false');
-$channel->queue_declare('r-queue', false, false, false, false, new AMQPTable(
-    [
-        'x-dead-letter-exchange' => 'dlx-exchange',
-        'x-dead-letter-routing-key' => 'dlx',
-        'x-message-ttl' => 50000,
-        'x-expires' => 60000
-    ]
-));
-$channel->queue_bind('r-queue', 'r-exchange');
-
-
-
-
-
-echo " [*] Waiting for messages. To exit press CTRL+C\n";
-
-/**
- * Callback for receive message
- * - sleep by dot .
- *
- */
 $callback = function (AMQPMessage $msg) {
     echo ' [x] Received ', $msg->body, "\n";
     if ($msg->body == "good") {
@@ -56,9 +44,13 @@ $callback = function (AMQPMessage $msg) {
     }
 };
 
-// no_ack = false
-$channel->basic_consume('04-queue', '', false, false, false, false, $callback);
+
+$channel->basic_qos(null, 1, null);
+$channel->basic_consume($queue, '', false, false, false, false, $callback);
 
 while (count($channel->callbacks)) {
     $channel->wait();
 }
+
+$channel->close();
+$connection->close();

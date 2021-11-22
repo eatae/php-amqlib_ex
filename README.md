@@ -93,11 +93,10 @@ run:
 # включаем DLX для nack сообщений (политика) 
 docker exec -it php_rabbit-rabbit rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"my-dlx"}' --apply-to queues
 
-# ack-worker
-docker exec -it php_rabbit-cli php 04-nack-dead-letter/ack-worker.php
-
-# nack-worker
+# ack/nack worker
 docker exec -it php_rabbit-cli php 04-nack-dead-letter/worker.php
+# or
+docker exec -it php_rabbit-cli php 04-nack-dead-letter/worker_2.php
 
 # это сообщение нормально обработается в своей очереди (ack)
 docker exec -it php_rabbit-cli php 04-nack-dead-letter/publisher.php "good"
